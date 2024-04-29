@@ -1,0 +1,38 @@
+#Number of processes
+n = int(input("Enter the number of processes: "))
+
+# Failed process
+failed = 4
+print(f"Process no. {failed} failed")
+
+# Initiator process
+initiator = 2
+print(f"Election initiated by {initiator}")
+
+# Determine the last valid process
+last = n - 2 if failed == n - 1 else n - 1
+
+# Set initial coordinator
+coordinator = initiator
+counter = 2
+
+while counter > 0:
+    round = 0
+    while round != n - 1:
+        if initiator == failed:
+            initiator = 0 if initiator == n - 1 else initiator + 1
+        else:
+            if (initiator == last and coordinator != 0) or (initiator != last and coordinator != initiator + 1):
+                print(f"Process {initiator} passes election ({initiator}) to {initiator + 1}")
+            initiator = (initiator + 1) % n  # Move to the next process
+            round += 1
+
+    if counter == 2:
+        print(f"{last} is the new coordinator")
+
+    # Update initiator and coordinator for the next round
+    initiator = last
+    coordinator = last
+    counter -= 1
+
+print("End of election")
