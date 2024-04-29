@@ -1,0 +1,35 @@
+def print_load(servers, processes):
+    each = processes // servers
+    extra = processes % servers
+
+    for i in range(servers):
+        total = each + 1 if extra > 0 else each
+        extra -= 1 if extra > 0 else 0
+        print(f"Server {chr(ord('A') + i)} has {total} Processes")
+
+def main():
+    print("Enter the number of servers and processes:")
+    servers, processes = map(int, input().split())
+
+    while True:
+        print_load(servers, processes)
+        print("1. Add Server 2. Remove Server 3. Add Processes 4. Remove Processes 5. Exit")
+        choice = int(input("Enter your choice: "))
+        
+        if choice == 1:
+            temp = int(input("How many more servers? "))
+            servers += temp
+        elif choice == 2:
+            temp = int(input("How many servers to remove? "))
+            servers -= temp
+        elif choice == 3:
+            temp = int(input("How many more processes? "))
+            processes += temp
+        elif choice == 4:
+            temp = int(input("How many processes to remove? "))
+            processes -= temp
+        elif choice == 5:
+            break
+
+if __name__ == "__main__":
+    main()
