@@ -1,0 +1,65 @@
+import socket
+import threading
+import struct
+import sys
+
+TERMINATE = "Exit"
+finished = False
+
+# Function to handle reading messages from the group
+def read_thread(sock, group, port):
+    global finished
+    while not finished:
+        try:
+            data, _ = sock.recvfrom(1024)  # buffer size
+            message = data.decode('utf-8')
+            if not message.startswith(name):
+                print(message)
+        except socket.error:
+            print("Socket closed!")
+            break
+
+# Function to start the chat group
+def start_group_chat(multicast_host, port):
+    global finished
+    global name
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('', port))  # Bind to all network interfaces
+
+    # Join the multicast group
+    group = socket.inet_aton(multicast_host)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+    name = input("Enter your name: ")
+
+    # Start the reading thread
+    reader = threading.Thread(target=read_thread, args=(sock, multicast_host, port))
+    reader.start()
+
+    print("Start typing messages...\n")
+
+    # Send messages until 'TERMINATE' is entered
+    while True:
+        message = input()
+        if message.strip().lower() == TERMINATE.lower():
+            finished = True
+            sock.close()
+            break
+
+        message = f"{name}: {message}"
+        sock.sendto(message.encode('utf-8'), (multicast_host, port))
+
+
+# Main entry point
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Two arguments required: <multicast-host> <port-number>")
+        sys.exit(1)
+
+    multicast_host = sys.argv[1]
+    port = int(sys.argv[2])
+
+    start_group_chat(multicast_host, port)
