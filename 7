@@ -1,0 +1,109 @@
+#s
+import socket
+
+# Create a socket object
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Get local machine name
+host = socket.gethostname()
+
+# Reserve a port for your service
+port = 12345
+
+# Bind the socket to the host and port
+server_socket.bind((host, port))
+
+# Listen for incoming connections
+server_socket.listen(5)
+print(f'Server listening on {host}:{port}')
+
+# List to keep track of clients
+clients = []
+
+# Flag to indicate if the critical section is available
+critical_section_available = True
+
+while True:
+    # Wait for a connection
+    client_socket, addr = server_socket.accept()
+    print(f'Got connection from {addr}')
+
+    # Check if the critical section is available
+    if critical_section_available:
+        critical_section_available = False
+        client_socket.send(b'1')  # Grant access to the critical section
+        print(f'Access granted to {addr}')
+    else:
+        client_socket.send(b'0')  # Deny access to the critical section
+        print(f'Access denied to {addr}')
+
+    # Add the client socket to the list of clients
+    clients.append(client_socket)
+
+    # Wait for the client to release the critical section
+    data = client_socket.recv(1024)
+    if data.decode() == 'release':
+        critical_section_available = True
+        print(f'Critical section released by {addr}')
+
+    # Remove the client socket from the list of clients
+    clients.remove(client_socket)
+    client_socket.close()
+
+server_socket.close()
+
+#c1
+import socket
+
+# Create a socket object
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Get local machine name
+host = socket.gethostname()
+
+# Reserve a port for your service
+port = 12345
+
+# Connect to the server
+client_socket.connect((host, port))
+
+# Request access to the critical section
+data = client_socket.recv(1024)
+
+if data.decode() == '1':
+    print('Access granted to the critical section')
+    # Perform critical section operations
+    print('Critical section operations completed')
+    client_socket.send(b'release')
+else:
+    print('Access denied to the critical section')
+
+client_socket.close()
+
+#c2
+import socket
+
+# Create a socket object
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Get local machine name
+host = socket.gethostname()
+
+# Reserve a port for your service
+port = 12345
+
+# Connect to the server
+client_socket.connect((host, port))
+
+# Request access to the critical section
+data = client_socket.recv(1024)
+
+if data.decode() == '1':
+    print('Access granted to the critical section')
+    # Perform critical section operations
+    print('Critical section operations completed')
+    client_socket.send(b'release')
+else:
+    print('Access denied to the critical section')
+
+client_socket.close()
