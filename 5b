@@ -1,0 +1,33 @@
+number_of_processes = int(input("Enter the number of processes:\n"))
+
+priority = []
+status = []
+
+for i in range(number_of_processes):
+    temp_priority = int(input(f"Enter the priority for Process {i + 1}:\n"))
+    temp_status = int(input("Enter the status:\n"))
+
+    priority.append(temp_priority)
+    status.append(temp_status)
+
+initiating_process = int(input("Enter the initiating process:\n"))
+
+processes = [initiating_process]
+
+while processes:
+    processes.pop(0)
+    
+    for process in processes:
+        print(process, end=" ")
+    print()
+
+    for i in range(number_of_processes):
+        if priority[i] > priority[initiating_process - 1]:
+            print(f"Election message is sent from Process {initiating_process} to Process {i + 1}")
+            if status[i] != 0:
+                processes.append(i + 1)
+    
+    if processes:
+        initiating_process = processes[0]
+
+print(f"The final co-ordinator is Process {initiating_process}")
